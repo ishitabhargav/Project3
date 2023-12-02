@@ -4,92 +4,120 @@ import numpy as np
 
 class DangerousWiring:
     def __init__(self):
-        imageLength = 20
-        self.vector = np.zeros(imageLength ** 2)
-        # red = 1, blue = 2, yellow = 3, green = 4
-        self.colors = [1, 2, 4]
-        addedRed = False
+        image_length = 80 # 20*4 because each pixel is represented by 4 digits
+        self.vector = np.zeros(image_length**2 + 1)
+        self.vector[0] = 1 # first index of entire vector/image should be 1
+        red = [1, 0, 0, 0]
+        blue = [0, 1, 0, 0]
+        yellow = [0, 0, 1, 0]
+        green = [0, 0, 0, 1]
+        self.colors = [red, blue, green]
+        added_red = False
         # if < 0.5, pick row first, otherwise pick col first
-        rowOrCol = random.random()
-        print(rowOrCol)
+        row_or_col_first = random.random()
+        print(row_or_col_first)
 
-        if rowOrCol < 0.5:
+        if row_or_col_first < 0.5:
             # 1. pick first row to color in
-            randRow1 = np.random.randint(0, 20)
-            print("picking first row: " + str(randRow1))
-            randColor1 = self.colors.pop(np.random.randint(0, len(self.colors)))
-            if randColor1 == 1:  # if we selected red
-                self.colors.append(3)
-                addedRed = True
-            for count in range(randRow1 * 20, randRow1 * 20 + 20):
-                self.vector[count] = randColor1
+            rand_row_1 = np.random.randint(0, 20)
+            print("picking first row: " + str(rand_row_1))
+            rand_color_1 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            if rand_color_1 == red:  # if we selected red
+                self.colors.append(yellow)
+                added_red = True
+            for count in range(rand_row_1 * image_length + 1, rand_row_1 * image_length + image_length + 1):
+                self.vector[count] = rand_color_1[0]
+                self.vector[count+1] = rand_color_1[1]
+                self.vector[count+2] = rand_color_1[2]
+                self.vector[count+3] = rand_color_1[3]
 
             # 2. pick first column to color in
-            randCol1 = np.random.randint(0, 20)
-            randColor2 = self.colors.pop(np.random.randint(0, len(self.colors)))
-            if not addedRed and randColor2 == 1:
-                self.colors.append(3)
-                addedRed = True
-            for count in range(randCol1, len(self.vector), 20):
-                self.vector[count] = randColor2
+            rand_col_1 = np.random.randint(0, 20)
+            rand_color_2 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            if not added_red and rand_color_2 == red:
+                self.colors.append(yellow)
+                added_red = True
+            for count in range(rand_col_1, len(self.vector), image_length):
+                self.vector[count] = rand_color_2[0]
+                self.vector[count+1] = rand_color_2[1]
+                self.vector[count+2] = rand_color_2[2]
+                self.vector[count+3] = rand_color_2[3]
 
             # 3. pick second row to color in
-            randRow2 = np.random.randint(0, 20)
-            while randRow2 == randRow1:
-                randRow2 = np.random.randint(0, 20)
-            randColor3 = self.colors.pop(np.random.randint(0, len(self.colors)))
-            if not addedRed and randColor3 == 1:
-                self.colors.append(3)
-                addedRed = True
-            for count in range(randRow2 * 20, randRow2 * 20 + 20):
-                self.vector[count] = randColor3
+            rand_row_2 = np.random.randint(0, 20)
+            while rand_row_2 == rand_row_1:
+                rand_row_2 = np.random.randint(0, 20)
+            rand_color_3 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            if not added_red and rand_color_3 == red:
+                self.colors.append(yellow)
+                added_red = True
+            for count in range(rand_row_2 * image_length + 1, rand_row_2 * image_length + image_length + 1):
+                self.vector[count] = rand_color_3[0]
+                self.vector[count+1] = rand_color_3[1]
+                self.vector[count+2] = rand_color_3[2]
+                self.vector[count+3] = rand_color_3[3]
 
             # 4. pick second column to color in
-            randCol2 = np.random.randint(0, 20)
-            while randCol2 == randCol1:
-                randCol2 = np.random.randint(0, 20)
-            randColor4 = self.colors.pop(np.random.randint(0, len(self.colors)))
-            for count in range(randCol2, len(self.vector), 20):
-                self.vector[count] = randColor4
+            rand_col_2 = np.random.randint(0, 20)
+            while rand_col_2 == rand_col_1:
+                rand_col_2 = np.random.randint(0, 20)
+            rand_color_4 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            for count in range(rand_col_2 + 1, len(self.vector), image_length):
+                self.vector[count] = rand_color_4[0]
+                self.vector[count+1] = rand_color_4[1]
+                self.vector[count+2] = rand_color_4[2]
+                self.vector[count+3] = rand_color_4[3]
 
         else:
             # 1. pick first column to color in
-            randCol1 = np.random.randint(0, 20)
-            print("picking first col: " + str(randCol1))
-            randColor1 = self.colors.pop(np.random.randint(0, len(self.colors)))
-            if randColor1 == 1:  # if we selected red
-                self.colors.append(3)
-                addedRed = True
-            for count in range(randCol1, len(self.vector), 20):
-                self.vector[count] = randColor1
+            rand_col_1 = np.random.randint(0, 20)
+            print("picking first col: " + str(rand_col_1))
+            rand_color_1 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            if rand_color_1 == red:
+                self.colors.append(yellow)
+                added_red = True
+            for count in range(rand_col_1 + 1, len(self.vector), image_length):
+                self.vector[count] = rand_color_1[0]
+                self.vector[count+1] = rand_color_1[1]
+                self.vector[count+2] = rand_color_1[2]
+                self.vector[count+3] = rand_color_1[3]
 
             # 2. pick first row to color in
-            randRow1 = np.random.randint(0, 20)
-            randColor2 = self.colors.pop(np.random.randint(0, len(self.colors)))
-            if not addedRed and randColor2 == 1:
-                self.colors.append(3)
-                addedRed = True
-            for count in range(randRow1 * 20, randRow1 * 20 + 20):
-                self.vector[count] = randColor2
+            rand_row_1 = np.random.randint(0, 20)
+            rand_color_2 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            if not added_red and rand_color_2 == red:
+                self.colors.append(yellow)
+                added_red = True
+            for count in range(rand_row_1 * image_length + 1, rand_row_1 * image_length + image_length + 1):
+                self.vector[count] = rand_color_2[0]
+                self.vector[count+1] = rand_color_2[1]
+                self.vector[count+2] = rand_color_2[2]
+                self.vector[count+3] = rand_color_2[3]
 
             # 3. pick second column to color in
-            randCol2 = np.random.randint(0, 20)
-            while randCol2 == randCol1:
-                randCol2 = np.random.randint(0, 20)
-            randColor3 = self.colors.pop(np.random.randint(0, len(self.colors)))
-            if not addedRed and randColor3 == 1:
-                self.colors.append(3)
-                addedRed = True
-            for count in range(randCol2, len(self.vector), 20):
-                self.vector[count] = randColor3
+            rand_col_2 = np.random.randint(0, 20)
+            while rand_col_2 == rand_col_1:
+                rand_col_2 = np.random.randint(0, 20)
+            rand_color_3 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            if not added_red and rand_color_3 == red:
+                self.colors.append(yellow)
+                added_red = True
+            for count in range(rand_col_2 + 1, len(self.vector), image_length):
+                self.vector[count] = rand_color_3[0]
+                self.vector[count+1] = rand_color_3[1]
+                self.vector[count+2] = rand_color_3[2]
+                self.vector[count+3] = rand_color_3[3]
 
             # 4. pick second row to color in
-            randRow2 = np.random.randint(0, 20)
-            while randRow2 == randRow1:
-                randRow2 = np.random.randint(0, 20)
-            randColor4 = self.colors.pop(np.random.randint(0, len(self.colors)))
-            for count in range(randRow2 * 20, randRow2 * 20 + 20):
-                self.vector[count] = randColor4
+            rand_row_2 = np.random.randint(0, 20)
+            while rand_row_2 == rand_row_1:
+                rand_row_2 = np.random.randint(0, 20)
+            rand_color_4 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            for count in range(rand_row_2 * image_length, rand_row_2 * image_length + image_length + 1):
+                self.vector[count] = rand_color_4[0]
+                self.vector[count+1] = rand_color_4[1]
+                self.vector[count+2] = rand_color_4[2]
+                self.vector[count+3] = rand_color_4[3]
 
 
 image = DangerousWiring()
