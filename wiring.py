@@ -5,7 +5,7 @@ import numpy as np
 class Wiring:
     def __init__(self):
         image_length = 80 # 20*4 because each pixel is represented by 4 digits
-        self.vector = np.zeros(image_length**2 + 1)
+        self.vector = np.zeros(1601) #image_length**2 + 1
         self.vector[0] = 1 # first index of entire vector/image should be 1
         red = [1, 0, 0, 0]
         blue = [0, 1, 0, 0]
