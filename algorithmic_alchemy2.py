@@ -1,7 +1,19 @@
+import math
+
 import numpy as np
 import random
 from wiring import Wiring
 import matplotlib.pyplot as plt
+
+def soft_max_regression(wr, wg, wb, wy, x, y):
+    e = math.e
+    denominator = e**(np.dot(wr, x)) + e**(np.dot(wg, x)) + e**(np.dot(wb, x)) + e**(np.dot(wy, x))
+    frx = e ** (np.dot(wr, x)) / denominator
+    fgx = e ** (np.dot(wg, x)) / denominator
+    fbx = e ** (np.dot(wb, x)) / denominator
+    fyx = e ** (np.dot(wy, x)) / denominator
+    fx = (frx, fgx, fbx, fyx)
+    loss_x_y = (frx + fgx + fbx + fyx) * -1 *
 
 
 def sigmoid(z) -> float:
@@ -47,21 +59,20 @@ def stochastic_gradient_descent(dataset, alpha, testing_set):
     for count in range(weights_length):
         weights[count] = random.uniform(-0.025, 0.025)  # unit intervals b/w -9 to -3 work well
     time = 0
-    termination = 350000
+    termination = 100000
     loss_list = []
     test_loss_list = []
-
+    # print("starting SGD")
     while time < termination:
         # 1. pick a data point at random
         data_point = dataset[np.random.randint(0, len(dataset))]
         x = data_point[0]  # vector
         y = data_point[1]  # classification
-        # 2. update loss values for testing and training sets
+        # 2. update weights vector
         '''loss = log_loss(x, y, weights, time)
         loss_list.append(loss)'''
         loss_list.append(sum_log_loss(dataset, weights))
         test_loss_list.append(sum_log_loss(testing_set, weights))
-        # 3. update weights vector
         updated_weights = weights - (alpha * calculate_gradient(x, y, weights) * x)
         weights = updated_weights
         time = time + 1
@@ -70,7 +81,7 @@ def stochastic_gradient_descent(dataset, alpha, testing_set):
     return [weights, loss_list, test_loss_list]
 
 
-class AlgorithmicAlchemy:
+class AlgorithmicAlchemy2:
     def __init__(self, training_dataset_size, testing_set):
         # training training_dataset
         self.training_dataset = []
@@ -99,8 +110,8 @@ def main():
         data_point = Wiring()
         validation_set.append((data_point.vector, data_point.is_dangerous))
 
-    algorithmic_alchemy_2000 = AlgorithmicAlchemy(model_1_size, validation_set)
-    weights_2000 = algorithmic_alchemy_2000.weights
+    algorithmic_alchemy2_2000 = AlgorithmicAlchemy2(model_1_size, validation_set)
+    weights_2000 = algorithmic_alchemy2_2000.weights
 
     # give model input and get output for data points in validation training_dataset to judge performance
     performance_hashtable = {}
@@ -130,7 +141,7 @@ def main():
     performance_training = {}
     for threshold in threshold_list:
         performance_training[threshold] = 0
-    training_set = algorithmic_alchemy_2000.training_dataset
+    training_set = algorithmic_alchemy2_2000.training_dataset
     for threshold in threshold_list:
         output_2000 = []
         for data_point in training_set:
@@ -150,7 +161,7 @@ def main():
                 num_correct = num_correct + 1
         performance_training[threshold] = num_correct / model_1_size
 
-    iteration_values = np.arange(start=0, stop=350000, step=1)
+    iteration_values = np.arange(start=0, stop=100000, step=1)
     y_vals_validation = []
     for item in performance_hashtable:
         y_vals_validation.append(performance_hashtable[item])
@@ -164,16 +175,16 @@ def main():
     print("loss for validation set: " + str(sum_log_loss(validation_set, weights_2000)))
 
     plt.subplot(1, 2, 1)  # First subplot of performance and threshold values VALIDATION
-    plt.plot(threshold_list, y_vals_training, marker='o', label='Training Set')
     plt.plot(threshold_list, y_vals_validation, marker='o', label='Validation Set')
+    plt.plot(threshold_list, y_vals_training, marker='o', label='Training Set')
     plt.xlabel("Threshold")
     plt.ylabel("Performance")
     plt.legend(loc='upper right')
     plt.title('Performance as a Function of Threshold')
 
     plt.subplot(1, 2, 2)  # Second subplot of loss
-    plt.plot(iteration_values, algorithmic_alchemy_2000.loss_list, marker='o', label='Training Set') #marker='o'
-    plt.plot(iteration_values, algorithmic_alchemy_2000.test_loss_list, marker='o', label='Validation Set')
+    plt.plot(iteration_values, algorithmic_alchemy2_2000.loss_list, marker='o', label='Training Set') #marker='o'
+    plt.plot(iteration_values, algorithmic_alchemy2_2000.test_loss_list, marker='o', label='Validation Set')
     plt.xlabel("Iteration Values")
     plt.ylabel("Loss Function Values")
     plt.title("Loss Function During Training")
@@ -190,13 +201,12 @@ def main():
     # Display the plot
     plt.show()
 
-    '''plt.plot(iteration_values, algorithmic_alchemy_2000.loss_list, label='Line Graph')
+    '''plt.plot(iteration_values, algorithmic_alchemy2_2000.loss_list, label='Line Graph')
     plt.xlabel("Iteration Values")
     plt.ylabel("Loss Function Values")
     plt.title("Loss Function During Training")
     plt.legend(loc='upper right')
     plt.show()'''
-
 
 
 if __name__ == "__main__":
@@ -224,7 +234,7 @@ if __name__ == "__main__":
 
 
     iteration_values = np.arange(start=0, stop=100000, step=1)
-    plt.plot(iteration_values, algorithmic_alchemy_500.loss_list, label='Line Graph')
+    plt.plot(iteration_values, algorithmic_alchemy2_500.loss_list, label='Line Graph')
     plt.xlabel("Iteration Values")
     plt.ylabel("Loss Function Values")
     plt.title("Loss Function During Training")
