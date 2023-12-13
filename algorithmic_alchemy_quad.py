@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from wiring_more_features import WiringQuadFeatures
+from wiring_quad_features import WiringQuadFeatures
 import matplotlib.pyplot as plt
 
 
