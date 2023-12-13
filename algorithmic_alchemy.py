@@ -47,7 +47,7 @@ def stochastic_gradient_descent(dataset, alpha, testing_set):
     for count in range(weights_length):
         weights[count] = random.uniform(-0.025, 0.025)  # unit intervals b/w -9 to -3 work well
     time = 0
-    termination = 350000
+    termination = 100000
     loss_list = []
     test_loss_list = []
 
@@ -150,7 +150,7 @@ def main():
                 num_correct = num_correct + 1
         performance_training[threshold] = num_correct / model_1_size
 
-    iteration_values = np.arange(start=0, stop=350000, step=1)
+    iteration_values = np.arange(start=0, stop=100000, step=1)
     y_vals_validation = []
     for item in performance_hashtable:
         y_vals_validation.append(performance_hashtable[item])
