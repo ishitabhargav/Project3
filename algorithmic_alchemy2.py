@@ -13,7 +13,7 @@ def soft_max_regression(wr, wg, wb, wy, x, y):
     fbx = e ** (np.dot(wb, x)) / denominator
     fyx = e ** (np.dot(wy, x)) / denominator
     fx = (frx, fgx, fbx, fyx)
-    loss_x_y = (frx + fgx + fbx + fyx) * -1 *
+    #loss_x_y = (frx + fgx + fbx + fyx) * -1 *
 
 
 def sigmoid(z) -> float:

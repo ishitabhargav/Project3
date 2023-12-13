@@ -21,7 +21,7 @@ class Wiring:
         if row_or_col_first < 0.5:
             # 1. pick first row to color in
             rand_row_1 = np.random.randint(0, image_length)
-            print("picking first row: " + str(rand_row_1))
+            #print("picking first row: " + str(rand_row_1))
             rand_color_1 = self.colors.pop(np.random.randint(0, len(self.colors)))
             if rand_color_1 == red:
                 self.is_dangerous = 1  # true
@@ -34,7 +34,7 @@ class Wiring:
 
             # 2. pick first column to color in
             rand_col_1 = np.random.randint(0, image_length)
-            print("picking first col: " + str(rand_col_1 * 4))
+            #print("picking first col: " + str(rand_col_1 * 4))
             rand_color_2 = self.colors.pop(np.random.randint(0, len(self.colors)))
             if not self.is_dangerous and rand_color_1 != yellow and rand_color_2 == red:
                 self.is_dangerous = 1  # true
@@ -48,7 +48,7 @@ class Wiring:
             rand_row_2 = np.random.randint(0, image_length)
             while rand_row_2 == rand_row_1:
                 rand_row_2 = np.random.randint(0, image_length)
-            print("picking second row: " + str(rand_row_2))
+            #print("picking second row: " + str(rand_row_2))
             rand_color_3 = self.colors.pop(np.random.randint(0, len(self.colors)))
             if not self.is_dangerous and rand_color_1 != yellow and rand_color_2 != yellow and rand_color_3 == red:
                 self.is_dangerous = 1
@@ -63,7 +63,7 @@ class Wiring:
             rand_col_2 = np.random.randint(0, image_length)
             while rand_col_2 == rand_col_1:
                 rand_col_2 = np.random.randint(0, image_length)
-            print("picking second col: " + str(rand_col_2 * 4))
+            #print("picking second col: " + str(rand_col_2 * 4))
             rand_color_4 = self.colors.pop(np.random.randint(0, len(self.colors)))
             for count in range(rand_col_2 * 4 + 1, len(self.vector), image_length * 4):
                 self.vector[count] = rand_color_4[0]
@@ -122,10 +122,10 @@ class Wiring:
                 self.vector[count + 3] = rand_color_4[3]
 
 
-image = Wiring()
+'''image = Wiring()
 num = len(image.vector)
 for count in range(1, len(image.vector)):
     print(int(image.vector[count]), end=" ")
     if count % 80 == 0:
         print("")
-print("classified as: " + str(image.is_dangerous))
+print("classified as: " + str(image.is_dangerous))'''

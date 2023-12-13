@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from wiring import Wiring
+from wiring_more_features import WiringQuadFeatures
 import matplotlib.pyplot as plt
 
 
@@ -84,13 +84,13 @@ class AlgorithmicAlchemy:
         # training training_dataset
         self.training_dataset = []
         for count in range(training_dataset_size):
-            data_point = Wiring()
+            data_point = WiringQuadFeatures()
             '''vector = data_point.vector
             for i in range(len(vector)):
                 noise = random.uniform(-0.05, 0.05)
                 vector[i] = vector[i] + noise'''
             self.training_dataset.append((data_point.vector, data_point.is_dangerous))  # input, output pairing
-        alpha = 0.1
+        alpha = 0.05
         stochastic_gradient_output = stochastic_gradient_descent(self.training_dataset, alpha, testing_set)
         self.weights = stochastic_gradient_output[0]
         self.loss_list = stochastic_gradient_output[1]
@@ -102,13 +102,13 @@ class AlgorithmicAlchemy:
 
 def main():
     # create model 1 of 500 examples for each of the training, validation, and testing sets
-    model_1_size = 2000
+    model_1_size = 4000
     validation_size = 500
 
     # validation training_dataset
     validation_set = []
     for count in range(validation_size):
-        data_point = Wiring()
+        data_point = WiringQuadFeatures()
         validation_set.append((data_point.vector, data_point.is_dangerous))
 
     algorithmic_alchemy_2000 = AlgorithmicAlchemy(model_1_size, validation_set)

@@ -1,245 +1,159 @@
-import math
-
-import numpy as np
 import random
-from wiring import Wiring
-import matplotlib.pyplot as plt
+import numpy as np
 
 
-def soft_max_regression(wr, wg, wb, wy, x, y):
-    e = math.e
-    denominator = e ** (np.dot(wr, x)) + e ** (np.dot(wg, x)) + e ** (np.dot(wb, x)) + e ** (np.dot(wy, x))
-    frx = e ** (np.dot(wr, x)) / denominator
-    fbx = e ** (np.dot(wb, x)) / denominator
-    fyx = e ** (np.dot(wy, x)) / denominator
-    fgx = e ** (np.dot(wg, x)) / denominator
-    fx = (frx, fbx, fyx, fgx)
-    loss_x_y = (-1 * (y == [1, 0, 0, 0]) * math.log(frx)) + (-1 * (y == [0, 1, 0, 0]) * math.log(fbx)) + (
-                -1 * (y == [0, 0, 1, 0]) * math.log(fyx)) + (-1 * (y == [0, 0, 0, 1]) * math.log(fgx))
+class WiringQuadFeatures:
+    def __init__(self):
+        image_length = 20
+        self.vector = np.zeros(image_length ** 2 * 4 + 1)  # each pixel represented by 4 digits
+        self.vector[0] = 1  # first index of entire vector/image should be 1
+        red = [1, 0, 0, 0]
+        blue = [0, 1, 0, 0]
+        yellow = [0, 0, 1, 0]
+        green = [0, 0, 0, 1]
+        self.colors = [red, blue, yellow, green]
 
+        self.is_dangerous = 0  # false
+        # if < 0.5, pick row first, otherwise pick col first
+        row_or_col_first = random.random()
+        # print(row_or_col_first)
 
-def sigmoid(z) -> float:
-    return 1 / (1 + np.exp(z * -1))
+        if row_or_col_first < 0.5:
+            # 1. pick first row to color in
+            rand_row_1 = np.random.randint(0, image_length)
+            #print("picking first row: " + str(rand_row_1))
+            rand_color_1 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            if rand_color_1 == red:
+                self.is_dangerous = 1  # true
+            for count in range(rand_row_1 * (image_length * 4) + 1,
+                               rand_row_1 * (image_length * 4) + (image_length * 4) + 1, 4):
+                self.vector[count] = rand_color_1[0]
+                self.vector[count + 1] = rand_color_1[1]
+                self.vector[count + 2] = rand_color_1[2]
+                self.vector[count + 3] = rand_color_1[3]
 
+            # 2. pick first column to color in
+            rand_col_1 = np.random.randint(0, image_length)
+            #print("picking first col: " + str(rand_col_1 * 4))
+            rand_color_2 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            if not self.is_dangerous and rand_color_1 != yellow and rand_color_2 == red:
+                self.is_dangerous = 1  # true
+            for count in range(rand_col_1 * 4 + 1, len(self.vector), image_length * 4):
+                self.vector[count] = rand_color_2[0]
+                self.vector[count + 1] = rand_color_2[1]
+                self.vector[count + 2] = rand_color_2[2]
+                self.vector[count + 3] = rand_color_2[3]
 
-def sum_log_loss(dataset, w) -> float:
-    loss = 0
-    for x, y in dataset:
-        sigmoid_output = sigmoid(np.dot(x, w))
-        '''if sigmoid_output <= 0:
-            print('orange')
-        elif 1 - sigmoid_output <= 0:
-            print('papaya')
+            # 3. pick second row to color in
+            rand_row_2 = np.random.randint(0, image_length)
+            while rand_row_2 == rand_row_1:
+                rand_row_2 = np.random.randint(0, image_length)
+            #print("picking second row: " + str(rand_row_2))
+            rand_color_3 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            if not self.is_dangerous and rand_color_1 != yellow and rand_color_2 != yellow and rand_color_3 == red:
+                self.is_dangerous = 1
+            for count in range(rand_row_2 * (image_length * 4) + 1,
+                               rand_row_2 * (image_length * 4) + (image_length * 4) + 1, 4):
+                self.vector[count] = rand_color_3[0]
+                self.vector[count + 1] = rand_color_3[1]
+                self.vector[count + 2] = rand_color_3[2]
+                self.vector[count + 3] = rand_color_3[3]
+
+            # 4. pick second column to color in
+            rand_col_2 = np.random.randint(0, image_length)
+            while rand_col_2 == rand_col_1:
+                rand_col_2 = np.random.randint(0, image_length)
+            #print("picking second col: " + str(rand_col_2 * 4))
+            rand_color_4 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            for count in range(rand_col_2 * 4 + 1, len(self.vector), image_length * 4):
+                self.vector[count] = rand_color_4[0]
+                self.vector[count + 1] = rand_color_4[1]
+                self.vector[count + 2] = rand_color_4[2]
+                self.vector[count + 3] = rand_color_4[3]
+
         else:
-            print("successful")'''
-        loss = loss + ((-1 * y) * np.log(sigmoid_output) - (1 - y) * np.log(1 - sigmoid_output))
-    return (1 / len(dataset)) * loss
+            # 1. pick first column to color in
+            rand_col_1 = np.random.randint(0, image_length)
+            #print("picking first col: " + str(rand_col_1))
+            rand_color_1 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            if rand_color_1 == red:
+                self.is_dangerous = 1
+            for count in range(rand_col_1 * 4 + 1, len(self.vector), image_length * 4):
+                self.vector[count] = rand_color_1[0]
+                self.vector[count + 1] = rand_color_1[1]
+                self.vector[count + 2] = rand_color_1[2]
+                self.vector[count + 3] = rand_color_1[3]
+
+            # 2. pick first row to color in
+            rand_row_1 = np.random.randint(0, image_length)
+            rand_color_2 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            if not self.is_dangerous and rand_color_1 != yellow and rand_color_2 == red:
+                self.is_dangerous = 1
+            for count in range(rand_row_1 * (image_length * 4) + 1,
+                               rand_row_1 * (image_length * 4) + (image_length * 4) + 1, 4):
+                self.vector[count] = rand_color_2[0]
+                self.vector[count + 1] = rand_color_2[1]
+                self.vector[count + 2] = rand_color_2[2]
+                self.vector[count + 3] = rand_color_2[3]
+
+            # 3. pick second column to color in
+            rand_col_2 = np.random.randint(0, image_length)
+            while rand_col_2 == rand_col_1:
+                rand_col_2 = np.random.randint(0, image_length)
+            rand_color_3 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            if not self.is_dangerous and rand_color_1 != yellow and rand_color_2 != yellow and rand_color_3 == red:
+                self.is_dangerous = 1
+            for count in range(rand_col_2 * 4 + 1, len(self.vector), image_length * 4):
+                self.vector[count] = rand_color_3[0]
+                self.vector[count + 1] = rand_color_3[1]
+                self.vector[count + 2] = rand_color_3[2]
+                self.vector[count + 3] = rand_color_3[3]
+
+            # 4. pick second row to color in
+            rand_row_2 = np.random.randint(0, image_length)
+            while rand_row_2 == rand_row_1:
+                rand_row_2 = np.random.randint(0, image_length)
+            rand_color_4 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            for count in range(rand_row_2 * (image_length * 4) + 1,
+                               rand_row_2 * (image_length * 4) + (image_length * 4) + 1, 4):
+                self.vector[count] = rand_color_4[0]
+                self.vector[count + 1] = rand_color_4[1]
+                self.vector[count + 2] = rand_color_4[2]
+                self.vector[count + 3] = rand_color_4[3]
+
+        # add quadratic features to the input vector
+        quadratic_features = []
+        for count in range(1, len(self.vector), 4):
+            current = [self.vector[count], self.vector[count+1], self.vector[count+2], self.vector[count+3]]
+            if count - 4 > 0 and (count - 1) % 80 != 0: # if there is a pixel to its left
+                left = [self.vector[count-4], self.vector[count-3], self.vector[count-2], self.vector[count-1]]
+                dot_product = np.dot(current, left)
+                quadratic_features.append(dot_product)
+            if count + 4 < len(self.vector) and (count + 3) % 80 != 0: # if there is a pixel to its right
+                right = [self.vector[count+4], self.vector[count+5], self.vector[count+6], self.vector[count+7]]
+                dot_product = np.dot(current, right)
+                quadratic_features.append(dot_product)
+            bottom_index = count + (image_length*4)
+            if bottom_index < len(self.vector): # if there is a pixel directly below it
+                bottom = [self.vector[bottom_index], self.vector[bottom_index+1], self.vector[bottom_index+2], self.vector[bottom_index+3]]
+                dot_product = np.dot(current, bottom)
+                quadratic_features.append(dot_product)
+            top_index = count - (image_length*4)
+            if top_index > 0: # if there is a pixel directly above it
+                top = [self.vector[top_index], self.vector[top_index+1], self.vector[top_index+2], self.vector[top_index+3]]
+                dot_product = np.dot(current, top)
+                quadratic_features.append(dot_product)
+        self.vector = np.append(self.vector, quadratic_features)
 
 
-def log_loss(x, y, w, time) -> float:
-    dot_product = np.dot(x, w)
-    sigmoid_output = sigmoid(dot_product)
-
-    if sigmoid_output <= 0:
-        print('orange')
-    elif 1 - sigmoid_output <= 0:
-        print('papaya')
-    else:
-        print("successful")
-    ans = (-1 * y) * np.log(sigmoid_output) - (1 - y) * np.log(1 - sigmoid_output)
-
-    return ans
-
-
-def calculate_gradient(x, y, w) -> float:
-    return sigmoid(np.dot(x, w)) - y
-
-
-def stochastic_gradient_descent(dataset, alpha, testing_set):
-    weights_length = len(dataset[0][0])  # get the length of an input vector
-    weights = np.zeros(weights_length)
-    for count in range(weights_length):
-        weights[count] = random.uniform(-0.025, 0.025)  # unit intervals b/w -9 to -3 work well
-    time = 0
-    termination = 100000
-    loss_list = []
-    test_loss_list = []
-    # print("starting SGD")
-    while time < termination:
-        # 1. pick a data point at random
-        data_point = dataset[np.random.randint(0, len(dataset))]
-        x = data_point[0]  # vector
-        y = data_point[1]  # classification
-        # 2. update weights vector
-        '''loss = log_loss(x, y, weights, time)
-        loss_list.append(loss)'''
-        loss_list.append(sum_log_loss(dataset, weights))
-        test_loss_list.append(sum_log_loss(testing_set, weights))
-        updated_weights = weights - (alpha * calculate_gradient(x, y, weights) * x)
-        weights = updated_weights
-        time = time + 1
-        print(time)
-    print("loss for training training_dataset: " + str(sum_log_loss(dataset, weights)))
-    return [weights, loss_list, test_loss_list]
-
-
-class AlgorithmicAlchemy2:
-    def __init__(self, training_dataset_size, testing_set):
-        # training training_dataset
-        self.training_dataset = []
-        for count in range(training_dataset_size):
-            data_point = Wiring()
-            vector = data_point.vector
-            for i in range(len(vector)):
-                noise = random.uniform(-0.05, 0.05)
-                vector[i] = vector[i] + noise
-            self.training_dataset.append((vector, data_point.is_dangerous))  # input, output pairing
-        alpha = 0.1
-        stochastic_gradient_output = stochastic_gradient_descent(self.training_dataset, alpha, testing_set)
-        self.weights = stochastic_gradient_output[0]
-        self.loss_list = stochastic_gradient_output[1]
-        self.test_loss_list = stochastic_gradient_output[2]
-
-
-def main():
-    # create model 1 of 500 examples for each of the training, validation, and testing sets
-    model_1_size = 2000
-    validation_size = 500
-
-    # validation training_dataset
-    validation_set = []
-    for count in range(validation_size):
-        data_point = Wiring()
-        validation_set.append((data_point.vector, data_point.is_dangerous))
-
-    algorithmic_alchemy2_2000 = AlgorithmicAlchemy2(model_1_size, validation_set)
-    weights_2000 = algorithmic_alchemy2_2000.weights
-
-    # give model input and get output for data points in validation training_dataset to judge performance
-    performance_hashtable = {}
-    threshold_list = np.linspace(0, 1, 50)
-    for threshold in threshold_list:
-        performance_hashtable[threshold] = 0
-    for threshold in threshold_list:
-        output_2000 = []
-        for data_point in validation_set:
-            x = data_point[0]
-            sigmoid_output = sigmoid(np.dot(x, weights_2000))
-            if sigmoid_output < threshold:
-                output_2000.append(0)
-            else:
-                output_2000.append(1)
-
-        # calculate performance
-        num_correct = 0
-        for count in range(validation_size):
-            output_model = output_2000[count]
-            output_answer = validation_set[count][1]
-            if output_answer == output_model:
-                num_correct = num_correct + 1
-        performance_hashtable[threshold] = num_correct / validation_size
-
-    # performance on training training_dataset
-    performance_training = {}
-    for threshold in threshold_list:
-        performance_training[threshold] = 0
-    training_set = algorithmic_alchemy2_2000.training_dataset
-    for threshold in threshold_list:
-        output_2000 = []
-        for data_point in training_set:
-            x = data_point[0]
-            sigmoid_output = sigmoid(np.dot(x, weights_2000))
-            if sigmoid_output < threshold:
-                output_2000.append(0)
-            else:
-                output_2000.append(1)
-
-        # calculate performance
-        num_correct = 0
-        for count in range(model_1_size):
-            output_model = output_2000[count]
-            output_answer = training_set[count][1]
-            if output_answer == output_model:
-                num_correct = num_correct + 1
-        performance_training[threshold] = num_correct / model_1_size
-
-    iteration_values = np.arange(start=0, stop=100000, step=1)
-    y_vals_validation = []
-    for item in performance_hashtable:
-        y_vals_validation.append(performance_hashtable[item])
-    y_vals_training = []
-    for item in performance_training:
-        y_vals_training.append(performance_training[item])
-
-    for w in weights_2000:
-        print(w)
-
-    print("loss for validation set: " + str(sum_log_loss(validation_set, weights_2000)))
-
-    plt.subplot(1, 2, 1)  # First subplot of performance and threshold values VALIDATION
-    plt.plot(threshold_list, y_vals_validation, marker='o', label='Validation Set')
-    plt.plot(threshold_list, y_vals_training, marker='o', label='Training Set')
-    plt.xlabel("Threshold")
-    plt.ylabel("Performance")
-    plt.legend(loc='upper right')
-    plt.title('Performance as a Function of Threshold')
-
-    plt.subplot(1, 2, 2)  # Second subplot of loss
-    plt.plot(iteration_values, algorithmic_alchemy2_2000.loss_list, marker='o', label='Training Set')  # marker='o'
-    plt.plot(iteration_values, algorithmic_alchemy2_2000.test_loss_list, marker='o', label='Validation Set')
-    plt.xlabel("Iteration Values")
-    plt.ylabel("Loss Function Values")
-    plt.title("Loss Function During Training")
-    plt.legend(loc='upper right')
-
-    '''plt.subplot(1, 3, 3)  # Third subplot of performance and threshold values TRAINING
-    plt.plot(threshold_list, y_vals_training, marker='o')
-    plt.xlabel("Threshold")
-    plt.ylabel("Performance")
-    plt.title('Performance as a Function of Threshold')'''
-
-    plt.tight_layout()
-
-    # Display the plot
-    plt.show()
-
-    '''plt.plot(iteration_values, algorithmic_alchemy2_2000.loss_list, label='Line Graph')
-    plt.xlabel("Iteration Values")
-    plt.ylabel("Loss Function Values")
-    plt.title("Loss Function During Training")
-    plt.legend(loc='upper right')
-    plt.show()'''
-
-
-if __name__ == "__main__":
-    main()
-
-'''
-    for data_point in validation_set:
-        x = data_point[0]
-        y = data_point[1]
-        sigmoid_output = sigmoid(np.dot(x, weights_500))
-        if sigmoid_output < 0.5:
-            output_500.append((x, 0))
-        else:
-            output_500.append((x, 1))
-
-    # calculate performance
-    num_correct = 0
-    for count in range(len(output_500)):
-        output_model = output_500[count][1]
-        output_answer = validation_set[count][1]
-        if output_answer == output_model:
-            num_correct = num_correct + 1
-    performance = num_correct / model_1_size
-    print(performance)
-
-
-    iteration_values = np.arange(start=0, stop=100000, step=1)
-    plt.plot(iteration_values, algorithmic_alchemy2_500.loss_list, label='Line Graph')
-    plt.xlabel("Iteration Values")
-    plt.ylabel("Loss Function Values")
-    plt.title("Loss Function During Training")
-    plt.legend(loc='upper right')
-    plt.show()
-'''
+'''image = WiringQuadFeatures()
+num = len(image.vector)
+for count in range(1, 1601):
+    print(int(image.vector[count]), end=" ")
+    if count % 80 == 0:
+        print("")
+for count in range(1601, len(image.vector)):
+    print(int(image.vector[count]), end=" ")
+print("")
+print("classified as: " + str(image.is_dangerous))
+print("length of input vector: " + str(num))'''
