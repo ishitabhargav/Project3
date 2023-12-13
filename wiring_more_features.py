@@ -121,8 +121,8 @@ class WiringQuadFeatures:
                 self.vector[count + 2] = rand_color_4[2]
                 self.vector[count + 3] = rand_color_4[3]
 
-        # add quadratic features to the input vector
-        quadratic_features = []
+        # add quadratic features to the input vector by multiplying each neighboring pair of pixels together
+        '''quadratic_features = []
         for count in range(1, len(self.vector), 4):
             current = [self.vector[count], self.vector[count+1], self.vector[count+2], self.vector[count+3]]
             if count - 4 > 0 and (count - 1) % 80 != 0: # if there is a pixel to its left
@@ -143,7 +143,38 @@ class WiringQuadFeatures:
                 top = [self.vector[top_index], self.vector[top_index+1], self.vector[top_index+2], self.vector[top_index+3]]
                 dot_product = np.dot(current, top)
                 quadratic_features.append(dot_product)
-        self.vector = np.append(self.vector, quadratic_features)
+        self.vector = np.append(self.vector, quadratic_features)'''
+
+
+        # add quadratic features by taking the dot product of pairs of neighboring pixels and appending the dot product
+        # of those 2 dot products
+        # calculate dot product of groups of 4 in rows
+        quad_features2 = []
+        for count in range(1, len(self.vector), 16):
+            first = [self.vector[count], self.vector[count+1], self.vector[count+2], self.vector[count+3]]
+            second = [self.vector[count+4], self.vector[count+5], self.vector[count+6], self.vector[count+7]]
+            third = [self.vector[count+8], self.vector[count+9], self.vector[count+10], self.vector[count+11]]
+            fourth = [self.vector[count + 12], self.vector[count + 13], self.vector[count + 14], self.vector[count + 15]]
+            dot_prod1 = np.dot(first, second)
+            dot_prod2 = np.dot(third, fourth)
+            dot_prod3 = np.dot(dot_prod1, dot_prod2)
+            quad_features2.append(dot_prod3)
+
+        # calculate dot product of groups of 4 in columns
+        for big in range(0, len(self.vector) - 1, image_length*16):
+            for little in range(1, image_length*4, 4):
+                first = [self.vector[little+big], self.vector[little+big+1], self.vector[little+big+2], self.vector[little+big+3]]
+                second_index = little + big + image_length*4 # 81
+                second = [self.vector[second_index], self.vector[second_index+1], self.vector[second_index+2], self.vector[second_index+3]]
+                third_index = little + big + image_length*8 # 161
+                third = [self.vector[third_index], self.vector[third_index+1], self.vector[third_index+2], self.vector[third_index+3]]
+                fourth_index = little + big + image_length*12 # 241
+                fourth = [self.vector[fourth_index], self.vector[fourth_index+1], self.vector[fourth_index+2], self.vector[fourth_index+3]]
+                dot_prod_pair1 = np.dot(first, second)
+                dot_prod_pair2 = np.dot(third, fourth)
+                dot_prod = np.dot(dot_prod_pair1, dot_prod_pair2)
+                quad_features2.append(dot_prod)
+        self.vector = np.append(self.vector, quad_features2)
 
 
 '''image = WiringQuadFeatures()

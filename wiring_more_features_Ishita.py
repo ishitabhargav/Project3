@@ -2,11 +2,11 @@ import math
 
 import numpy as np
 import random
-from wiring import Wiring
+from dangerous_wiring import DangerousWiring
 import matplotlib.pyplot as plt
 
 
-def soft_max_regression(wr, wg, wb, wy, x, y):
+def soft_max_regression(wr, wb, wy, wg, x, y):
     e = math.e
     denominator = e ** (np.dot(wr, x)) + e ** (np.dot(wg, x)) + e ** (np.dot(wb, x)) + e ** (np.dot(wy, x))
     frx = e ** (np.dot(wr, x)) / denominator
@@ -14,41 +14,33 @@ def soft_max_regression(wr, wg, wb, wy, x, y):
     fyx = e ** (np.dot(wy, x)) / denominator
     fgx = e ** (np.dot(wg, x)) / denominator
     fx = (frx, fbx, fyx, fgx)
-    loss_x_y = (-1 * (y == [1, 0, 0, 0]) * math.log(frx)) + (-1 * (y == [0, 1, 0, 0]) * math.log(fbx)) + (
-                -1 * (y == [0, 0, 1, 0]) * math.log(fyx)) + (-1 * (y == [0, 0, 0, 1]) * math.log(fgx))
+
+    return fx
 
 
 def sigmoid(z) -> float:
     return 1 / (1 + np.exp(z * -1))
 
 
-def sum_log_loss(dataset, w) -> float:
+def sum_log_loss(dataset, wr, wb, wy, wg) -> float:
     loss = 0
     for x, y in dataset:
-        sigmoid_output = sigmoid(np.dot(x, w))
-        '''if sigmoid_output <= 0:
+        fx = soft_max_regression(wr, wb, wy, wg, x, y)
+        frx = fx[0]
+        fbx = fx[1]
+        fyx = fx[2]
+        fgx = fx[3]
+        loss = (-1 * (y == [1, 0, 0, 0]) * math.log(frx)) + (-1 * (y == [0, 1, 0, 0]) * math.log(fbx)) + (
+                -1 * (y == [0, 0, 1, 0]) * math.log(fyx)) + (-1 * (y == [0, 0, 0, 1]) * math.log(fgx))
+    return (1 / len(dataset)) * loss
+
+
+'''if sigmoid_output <= 0:
             print('orange')
         elif 1 - sigmoid_output <= 0:
             print('papaya')
         else:
             print("successful")'''
-        loss = loss + ((-1 * y) * np.log(sigmoid_output) - (1 - y) * np.log(1 - sigmoid_output))
-    return (1 / len(dataset)) * loss
-
-
-def log_loss(x, y, w, time) -> float:
-    dot_product = np.dot(x, w)
-    sigmoid_output = sigmoid(dot_product)
-
-    if sigmoid_output <= 0:
-        print('orange')
-    elif 1 - sigmoid_output <= 0:
-        print('papaya')
-    else:
-        print("successful")
-    ans = (-1 * y) * np.log(sigmoid_output) - (1 - y) * np.log(1 - sigmoid_output)
-
-    return ans
 
 
 def calculate_gradient(x, y, w) -> float:
@@ -57,9 +49,18 @@ def calculate_gradient(x, y, w) -> float:
 
 def stochastic_gradient_descent(dataset, alpha, testing_set):
     weights_length = len(dataset[0][0])  # get the length of an input vector
-    weights = np.zeros(weights_length)
+    wr = np.zeros(weights_length)
+    wb = np.zeros(weights_length)
+    wy = np.zeros(weights_length)
+    wg = np.zeros(weights_length)
     for count in range(weights_length):
-        weights[count] = random.uniform(-0.025, 0.025)  # unit intervals b/w -9 to -3 work well
+        wr[count] = random.uniform(-0.025, 0.025)  # unit intervals b/w -9 to -3 work well
+    for count in range(weights_length):
+        wb[count] = random.uniform(-0.025, 0.025)
+    for count in range(weights_length):
+        wy[count] = random.uniform(-0.025, 0.025)
+    for count in range(weights_length):
+        wg[count] = random.uniform(-0.025, 0.025)
     time = 0
     termination = 100000
     loss_list = []
@@ -71,16 +72,19 @@ def stochastic_gradient_descent(dataset, alpha, testing_set):
         x = data_point[0]  # vector
         y = data_point[1]  # classification
         # 2. update weights vector
-        '''loss = log_loss(x, y, weights, time)
-        loss_list.append(loss)'''
-        loss_list.append(sum_log_loss(dataset, weights))
-        test_loss_list.append(sum_log_loss(testing_set, weights))
-        updated_weights = weights - (alpha * calculate_gradient(x, y, weights) * x)
-        weights = updated_weights
+        fx = soft_max_regression(wr, wb, wy, wg, x, y)
+        wr = wr - (alpha * (fx[0] - y[0]) * x)
+        wb = wb - (alpha * (fx[1] - y[1]) * x)
+        wy = wy - (alpha * (fx[2] - y[2]) * x)
+        wg = wg - (alpha * (fx[3] - y[3]) * x)
+
+        # 3. loss values
+        loss_list.append(sum_log_loss(dataset, wr, wb, wy, wg))
+        test_loss_list.append(sum_log_loss(testing_set, wr, wb, wy, wg))
         time = time + 1
         print(time)
-    print("loss for training training_dataset: " + str(sum_log_loss(dataset, weights)))
-    return [weights, loss_list, test_loss_list]
+    print("loss for training training_dataset: " + str(sum_log_loss(dataset, wr, wb, wy, wg)))
+    return [wr, wb, wy, wg, loss_list, test_loss_list]
 
 
 class AlgorithmicAlchemy2:
@@ -88,17 +92,20 @@ class AlgorithmicAlchemy2:
         # training training_dataset
         self.training_dataset = []
         for count in range(training_dataset_size):
-            data_point = Wiring()
+            data_point = DangerousWiring()
             vector = data_point.vector
             for i in range(len(vector)):
                 noise = random.uniform(-0.05, 0.05)
                 vector[i] = vector[i] + noise
-            self.training_dataset.append((vector, data_point.is_dangerous))  # input, output pairing
+            self.training_dataset.append((vector, data_point.wire_to_cut))  # input, output pairing
         alpha = 0.1
         stochastic_gradient_output = stochastic_gradient_descent(self.training_dataset, alpha, testing_set)
-        self.weights = stochastic_gradient_output[0]
-        self.loss_list = stochastic_gradient_output[1]
-        self.test_loss_list = stochastic_gradient_output[2]
+        self.wr = stochastic_gradient_output[0]
+        self.wb = stochastic_gradient_output[1]
+        self.wy = stochastic_gradient_output[2]
+        self.wg = stochastic_gradient_output[3]
+        self.loss_list = stochastic_gradient_output[4]
+        self.test_loss_list = stochastic_gradient_output[5]
 
 
 def main():
@@ -109,13 +116,13 @@ def main():
     # validation training_dataset
     validation_set = []
     for count in range(validation_size):
-        data_point = Wiring()
-        validation_set.append((data_point.vector, data_point.is_dangerous))
+        data_point = DangerousWiring()
+        validation_set.append((data_point.vector, data_point.wire_to_cut))
 
     algorithmic_alchemy2_2000 = AlgorithmicAlchemy2(model_1_size, validation_set)
     weights_2000 = algorithmic_alchemy2_2000.weights
 
-    # give model input and get output for data points in validation training_dataset to judge performance
+    # give model input and get output for data points in validation set to evaluate performance
     performance_hashtable = {}
     threshold_list = np.linspace(0, 1, 50)
     for threshold in threshold_list:
@@ -177,8 +184,9 @@ def main():
     print("loss for validation set: " + str(sum_log_loss(validation_set, weights_2000)))
 
     plt.subplot(1, 2, 1)  # First subplot of performance and threshold values VALIDATION
-    plt.plot(threshold_list, y_vals_validation, marker='o', label='Validation Set')
     plt.plot(threshold_list, y_vals_training, marker='o', label='Training Set')
+    plt.plot(threshold_list, y_vals_validation, marker='o', label='Validation Set')
+
     plt.xlabel("Threshold")
     plt.ylabel("Performance")
     plt.legend(loc='upper right')

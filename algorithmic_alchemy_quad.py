@@ -102,7 +102,7 @@ class AlgorithmicAlchemy:
 
 def main():
     # create model 1 of 500 examples for each of the training, validation, and testing sets
-    model_1_size = 4000
+    model_1_size = 2000
     validation_size = 500
 
     # validation training_dataset

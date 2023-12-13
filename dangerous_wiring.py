@@ -12,6 +12,7 @@ class DangerousWiring:
         yellow = [0, 0, 1, 0]
         green = [0, 0, 0, 1]
         self.colors = [red, blue, green]
+        self.wire_to_cut = None
         added_red = False
         # if < 0.5, pick row first, otherwise pick col first
         row_or_col_first = random.random()
@@ -38,7 +39,7 @@ class DangerousWiring:
             if not added_red and rand_color_2 == red:
                 self.colors.append(yellow)
                 added_red = True
-            for count in range(rand_col_1 + 1, len(self.vector), image_length * 4):
+            for count in range(rand_col_1*4 + 1, len(self.vector), image_length * 4):
                 self.vector[count] = rand_color_2[0]
                 self.vector[count + 1] = rand_color_2[1]
                 self.vector[count + 2] = rand_color_2[2]
@@ -49,6 +50,7 @@ class DangerousWiring:
             while rand_row_2 == rand_row_1:
                 rand_row_2 = np.random.randint(0, image_length)
             rand_color_3 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            self.wire_to_cut = rand_color_3
             if not added_red and rand_color_3 == red:
                 self.colors.append(yellow)
                 added_red = True
@@ -64,7 +66,7 @@ class DangerousWiring:
             while rand_col_2 == rand_col_1:
                 rand_col_2 = np.random.randint(0, image_length)
             rand_color_4 = self.colors.pop(np.random.randint(0, len(self.colors)))
-            for count in range(rand_col_2 + 1, len(self.vector), image_length * 4):
+            for count in range(rand_col_2*4 + 1, len(self.vector), image_length * 4):
                 self.vector[count] = rand_color_4[0]
                 self.vector[count + 1] = rand_color_4[1]
                 self.vector[count + 2] = rand_color_4[2]
@@ -78,7 +80,7 @@ class DangerousWiring:
             if rand_color_1 == red:
                 self.colors.append(yellow)
                 added_red = True
-            for count in range(rand_col_1 + 1, len(self.vector), image_length * 4):
+            for count in range(rand_col_1*4 + 1, len(self.vector), image_length * 4):
                 self.vector[count] = rand_color_1[0]
                 self.vector[count + 1] = rand_color_1[1]
                 self.vector[count + 2] = rand_color_1[2]
@@ -102,10 +104,11 @@ class DangerousWiring:
             while rand_col_2 == rand_col_1:
                 rand_col_2 = np.random.randint(0, image_length)
             rand_color_3 = self.colors.pop(np.random.randint(0, len(self.colors)))
+            self.wire_to_cut = rand_color_3
             if not added_red and rand_color_3 == red:
                 self.colors.append(yellow)
                 added_red = True
-            for count in range(rand_col_2 + 1, len(self.vector), image_length * 4):
+            for count in range(rand_col_2*4 + 1, len(self.vector), image_length * 4):
                 self.vector[count] = rand_color_3[0]
                 self.vector[count + 1] = rand_color_3[1]
                 self.vector[count + 2] = rand_color_3[2]
