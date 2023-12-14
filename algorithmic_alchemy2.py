@@ -6,7 +6,7 @@ from dangerous_wiring import DangerousWiring
 import matplotlib.pyplot as plt
 
 
-def soft_max_regression(wr, wb, wy, wg, x, y):
+def soft_max_regression(wr, wb, wy, wg, x):
     e = math.e
     denominator = e ** (np.dot(wr, x)) + e ** (np.dot(wg, x)) + e ** (np.dot(wb, x)) + e ** (np.dot(wy, x))
     frx = e ** (np.dot(wr, x)) / denominator
@@ -25,7 +25,7 @@ def sigmoid(z) -> float:
 def sum_log_loss(dataset, wr, wb, wy, wg) -> float:
     loss = 0
     for x, y in dataset:
-        fx = soft_max_regression(wr, wb, wy, wg, x, y)
+        fx = soft_max_regression(wr, wb, wy, wg, x)
         frx = fx[0]
         fbx = fx[1]
         fyx = fx[2]
@@ -62,7 +62,7 @@ def stochastic_gradient_descent(dataset, alpha, testing_set):
     for count in range(weights_length):
         wg[count] = random.uniform(-0.025, 0.025)
     time = 0
-    termination = 100000
+    termination = 40000
     loss_list = []
     test_loss_list = []
     # print("starting SGD")
@@ -72,7 +72,7 @@ def stochastic_gradient_descent(dataset, alpha, testing_set):
         x = data_point[0]  # vector
         y = data_point[1]  # classification
         # 2. update weights vector
-        fx = soft_max_regression(wr, wb, wy, wg, x, y)
+        fx = soft_max_regression(wr, wb, wy, wg, x)
         wr = wr - (alpha * (fx[0] - y[0]) * x)
         wb = wb - (alpha * (fx[1] - y[1]) * x)
         wy = wy - (alpha * (fx[2] - y[2]) * x)
@@ -93,11 +93,11 @@ class AlgorithmicAlchemy2:
         self.training_dataset = []
         for count in range(training_dataset_size):
             data_point = DangerousWiring()
-            vector = data_point.vector
+            '''vector = data_point.vector
             for i in range(len(vector)):
                 noise = random.uniform(-0.05, 0.05)
-                vector[i] = vector[i] + noise
-            self.training_dataset.append((vector, data_point.wire_to_cut))  # input, output pairing
+                vector[i] = vector[i] + noise'''
+            self.training_dataset.append((data_point.vector, data_point.wire_to_cut))  # input, output pairing
         alpha = 0.1
         stochastic_gradient_output = stochastic_gradient_descent(self.training_dataset, alpha, testing_set)
         self.wr = stochastic_gradient_output[0]
@@ -120,79 +120,47 @@ def main():
         validation_set.append((data_point.vector, data_point.wire_to_cut))
 
     algorithmic_alchemy2_2000 = AlgorithmicAlchemy2(model_1_size, validation_set)
-    weights_2000 = algorithmic_alchemy2_2000.weights
+    wr_2000 = algorithmic_alchemy2_2000.wr
+    wb_2000 = algorithmic_alchemy2_2000.wb
+    wy_2000 = algorithmic_alchemy2_2000.wy
+    wg_2000 = algorithmic_alchemy2_2000.wg
 
     # give model input and get output for data points in validation set to evaluate performance
     performance_hashtable = {}
     threshold_list = np.linspace(0, 1, 50)
     for threshold in threshold_list:
         performance_hashtable[threshold] = 0
-    for threshold in threshold_list:
-        output_2000 = []
-        for data_point in validation_set:
-            x = data_point[0]
-            sigmoid_output = sigmoid(np.dot(x, weights_2000))
-            if sigmoid_output < threshold:
-                output_2000.append(0)
-            else:
-                output_2000.append(1)
 
-        # calculate performance
-        num_correct = 0
-        for count in range(validation_size):
-            output_model = output_2000[count]
-            output_answer = validation_set[count][1]
-            if output_answer == output_model:
-                num_correct = num_correct + 1
-        performance_hashtable[threshold] = num_correct / validation_size
+    # evaluate performance on validation set
+    num_correct_validation = 0
+    for data_point in validation_set:
+        x = data_point[0]
+        validation_y = data_point[1]
+        model_output_y = [0, 0, 0, 0]
+        max_index = np.argmax(soft_max_regression(wr_2000, wb_2000, wy_2000, wg_2000, x))
+        model_output_y[max_index] = 1
+        if model_output_y == validation_y:
+            num_correct_validation = num_correct_validation + 1
+    performance_validation = num_correct_validation / validation_size
 
-    # performance on training training_dataset
-    performance_training = {}
-    for threshold in threshold_list:
-        performance_training[threshold] = 0
+    # performance on training set
+    num_correct_training = 0
     training_set = algorithmic_alchemy2_2000.training_dataset
-    for threshold in threshold_list:
-        output_2000 = []
-        for data_point in training_set:
-            x = data_point[0]
-            sigmoid_output = sigmoid(np.dot(x, weights_2000))
-            if sigmoid_output < threshold:
-                output_2000.append(0)
-            else:
-                output_2000.append(1)
+    for data_point in training_set:
+        x = data_point[0]
+        validation_y = data_point[1]
+        model_output_y = [0, 0, 0, 0]
+        max_index = np.argmax(soft_max_regression(wr_2000, wb_2000, wy_2000, wg_2000, x))
+        model_output_y[max_index] = 1
+        if model_output_y == validation_y:
+            num_correct_training = num_correct_training + 1
+    performance_training = num_correct_training / model_1_size
 
-        # calculate performance
-        num_correct = 0
-        for count in range(model_1_size):
-            output_model = output_2000[count]
-            output_answer = training_set[count][1]
-            if output_answer == output_model:
-                num_correct = num_correct + 1
-        performance_training[threshold] = num_correct / model_1_size
-
-    iteration_values = np.arange(start=0, stop=100000, step=1)
-    y_vals_validation = []
-    for item in performance_hashtable:
-        y_vals_validation.append(performance_hashtable[item])
-    y_vals_training = []
-    for item in performance_training:
-        y_vals_training.append(performance_training[item])
-
-    for w in weights_2000:
-        print(w)
-
-    print("loss for validation set: " + str(sum_log_loss(validation_set, weights_2000)))
-
-    plt.subplot(1, 2, 1)  # First subplot of performance and threshold values VALIDATION
-    plt.plot(threshold_list, y_vals_training, marker='o', label='Training Set')
-    plt.plot(threshold_list, y_vals_validation, marker='o', label='Validation Set')
-
-    plt.xlabel("Threshold")
-    plt.ylabel("Performance")
-    plt.legend(loc='upper right')
-    plt.title('Performance as a Function of Threshold')
-
-    plt.subplot(1, 2, 2)  # Second subplot of loss
+    iteration_values = np.arange(start=0, stop=40000, step=1)
+    print("loss for validation set: " + str(sum_log_loss(validation_set, wr_2000, wb_2000, wy_2000, wg_2000)))
+    print("performance on validation set: " + str(performance_validation))
+    print("performance on training set: " + str(performance_training))
+    # plot loss for training and validation sets
     plt.plot(iteration_values, algorithmic_alchemy2_2000.loss_list, marker='o', label='Training Set')  # marker='o'
     plt.plot(iteration_values, algorithmic_alchemy2_2000.test_loss_list, marker='o', label='Validation Set')
     plt.xlabel("Iteration Values")
@@ -205,8 +173,6 @@ def main():
     plt.xlabel("Threshold")
     plt.ylabel("Performance")
     plt.title('Performance as a Function of Threshold')'''
-
-    plt.tight_layout()
 
     # Display the plot
     plt.show()
