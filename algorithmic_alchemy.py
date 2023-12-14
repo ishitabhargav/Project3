@@ -105,7 +105,7 @@ def main():
     model_1_size = 2000
     validation_size = 500
 
-    # validation training_dataset
+    # validation set
     validation_set = []
     for count in range(validation_size):
         data_point = Wiring()

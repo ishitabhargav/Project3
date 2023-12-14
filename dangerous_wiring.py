@@ -126,10 +126,10 @@ class DangerousWiring:
                 self.vector[count + 2] = rand_color_4[2]
                 self.vector[count + 3] = rand_color_4[3]
 
-                # add quadratic features by taking the dot product of pairs of neighboring pixels and appending the dot product
-                # of those 2 dot products
-                # calculate dot product of groups of 4 in rows
-        quad_features2 = []
+        # add quadratic features by taking the dot product of pairs of neighboring pixels and appending the dot product
+        # of those 2 dot products
+        # calculate dot product of groups of 4 in rows
+        '''quad_features2 = []
         for count in range(1, len(self.vector), 16):
             first = [self.vector[count], self.vector[count + 1], self.vector[count + 2], self.vector[count + 3]]
             second = [self.vector[count + 4], self.vector[count + 5], self.vector[count + 6],
@@ -143,7 +143,7 @@ class DangerousWiring:
             dot_prod3 = np.dot(dot_prod1, dot_prod2)
             quad_features2.append(dot_prod3)
 
-            # calculate dot product of groups of 4 in columns
+        # calculate dot product of groups of 4 in columns
         for big in range(0, len(self.vector) - 1, image_length * 16):
             for little in range(1, image_length * 4, 4):
                 first = [self.vector[little + big], self.vector[little + big + 1],
@@ -160,10 +160,31 @@ class DangerousWiring:
                 dot_prod_pair1 = np.dot(first, second)
                 dot_prod_pair2 = np.dot(third, fourth)
                 dot_prod = np.dot(dot_prod_pair1, dot_prod_pair2)
-                quad_features2.append(dot_prod)
-        self.vector = np.append(self.vector, quad_features2)
+                quad_features2.append(dot_prod)'''
 
-#image = DangerousWiring()
+        # add information about the intersection of the colors. calculate sums of 2x2 areas and append them
+        sum_list = []
+        for big in range(0, len(self.vector) - 1, image_length * 8):
+            for little in range(1, image_length * 4, 8):
+                index_top_left = big + little
+                index_top_right = index_top_left + 4
+                index_bottom_left = index_top_left + image_length*4
+                index_bottom_right = index_bottom_left + 4
+                top_left = [self.vector[index_top_left], self.vector[index_top_left+1], self.vector[index_top_left+2], self.vector[index_top_left+3]]
+                top_right = [self.vector[index_top_right], self.vector[index_top_right+1], self.vector[index_top_right+2], self.vector[index_top_right+3]]
+                bottom_left = [self.vector[index_bottom_left], self.vector[index_bottom_left+1], self.vector[index_bottom_left+2], self.vector[index_bottom_left+3]]
+                bottom_right = [self.vector[index_bottom_right], self.vector[index_bottom_right+1], self.vector[index_bottom_right+2], self.vector[index_bottom_right+3]]
+                sum_square = []
+                for i in range(4):
+                    sum_square.append(top_left[i] + top_right[i] + bottom_left[i] + bottom_right[i])
+                sum_list.append(sum_square)
+        # self.vector = np.append(self.vector, quad_features2)
+        for item in sum_list: # add each list of sums for each 2x2 window
+            self.vector = np.append(self.vector, item)
+        print('s')
+
+
+image = DangerousWiring()
 
 '''for count in range(1, len(image.vector)):
     print(int(image.vector[count]), end=" ")

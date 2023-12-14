@@ -69,13 +69,13 @@ def stochastic_gradient_descent(dataset, alpha, testing_set):
         updated_weights = weights - (alpha * calculate_gradient(x, y, weights) * x)
         weights = updated_weights
 
-        if test_loss < best_test_loss:
+        if test_loss < best_test_loss and time > 20000:
             best_test_loss = test_loss
             best_weights = weights
             time_best_weights = time
         time = time + 1
         print(time)
-    print("loss for training training_dataset: " + str(sum_log_loss(dataset, weights)))
+    print("loss for training set: " + str(sum_log_loss(dataset, weights)))
     return [weights, loss_list, test_loss_list, best_weights, time_best_weights, best_test_loss]
 
 
@@ -163,6 +163,11 @@ def main():
         performance_training[threshold] = num_correct / model_1_size
 
     # evaluate performance of the best weights on validation set
+    '''validation_set_2 = []
+    for count in range(validation_size):
+        data_point = WiringQuadFeatures()
+        validation_set_2.append((data_point.vector, data_point.is_dangerous))'''
+
     best_weights_validation = {}
     best_weights_2000 = algorithmic_alchemy_2000.best_weights
     threshold_list = np.linspace(0, 1, 50)
@@ -224,36 +229,50 @@ def main():
     for item in best_weights_training:
         y_vals_training_best.append(best_weights_training[item])
 
-    '''for w in weights_2000:
-        print(w)'''
+    # make lists of train and test loss up until best weights time
+    time_best_weights = algorithmic_alchemy_2000.time_best_weights
+    train_loss_best = []
+    val_loss_best = []
+    train_loss = algorithmic_alchemy_2000.loss_list
+    test_loss = algorithmic_alchemy_2000.test_loss_list
+    for count in range(time_best_weights):
+        train_loss_best.append(train_loss[count])
+        val_loss_best.append(test_loss[count])
 
     print("loss for validation set: " + str(sum_log_loss(validation_set, weights_2000)))
     print("time step for best weights: " + str(algorithmic_alchemy_2000.time_best_weights))
     print("best weights log loss on validation set: " + str(algorithmic_alchemy_2000.best_test_loss))
-    plt.subplot(1, 2, 1)  # First subplot of performance and threshold values on training and validation
+    plt.subplot(2, 2, 1)  # First subplot of performance and threshold values on training and validation
     plt.plot(threshold_list, y_vals_training, marker='o', label='Training Set')
-    plt.plot(threshold_list, y_vals_validation, marker='o', label='Validation Set')
-    plt.plot(threshold_list, y_vals_training_best, marker='o', label='Best Weights Training Set')
-    plt.plot(threshold_list, y_vals_validation_best, marker='o', label='Best Weights Validation Set')
+    plt.plot(threshold_list, y_vals_validation, marker='o', label='Testing Set')
     plt.xlabel("Threshold")
     plt.ylabel("Performance")
     plt.legend(loc='upper right')
     plt.title('Performance as a Function of Threshold')
 
-    plt.subplot(1, 2, 2)  # Second subplot of loss
+    plt.subplot(2, 2, 2)  # Second subplot of loss
     plt.plot(iteration_values, algorithmic_alchemy_2000.loss_list, marker='o', label='Training Set') #marker='o'
-    plt.plot(iteration_values, algorithmic_alchemy_2000.test_loss_list, marker='o', label='Validation Set')
+    plt.plot(iteration_values, algorithmic_alchemy_2000.test_loss_list, marker='o', label='Testing Set')
     plt.xlabel("Iteration Values")
     plt.ylabel("Loss Function Values")
     plt.title("Loss Function During Training")
     plt.legend(loc='upper right')
 
-    '''plt.subplot(1, 3, 3)  # Third subplot of performance and threshold values TRAINING
-    plt.plot(threshold_list, y_vals_training, marker='o')
+    plt.subplot(2, 2, 3) # third subplot of best weight performance on second validation set
+    plt.plot(threshold_list, y_vals_training_best, marker='o', label='Training Set')
+    plt.plot(threshold_list, y_vals_validation_best, marker='o', label='Testing Set')
     plt.xlabel("Threshold")
     plt.ylabel("Performance")
-    plt.title('Performance as a Function of Threshold')'''
+    plt.legend(loc='upper right')
+    plt.title('Performance as a Function of Threshold for Model with Lowest Test Loss')
 
+    plt.subplot(2, 2, 4) # fourth subplot of loss
+    plt.plot(np.arange(start=0, stop=time_best_weights, step=1), train_loss_best, marker='o', label='Training Set')
+    plt.plot(np.arange(start=0, stop=time_best_weights, step=1), val_loss_best, marker='o', label='Testing Set')
+    plt.xlabel("Iteration Values")
+    plt.ylabel("Loss Function Values")
+    plt.title("Performance as a Function of Threshold for Model with Lowest Test Loss")
+    plt.legend(loc='upper right')
     plt.tight_layout()
 
     # Display the plot
