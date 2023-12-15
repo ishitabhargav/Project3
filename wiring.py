@@ -121,31 +121,6 @@ class Wiring:
                 self.vector[count + 2] = rand_color_4[2]
                 self.vector[count + 3] = rand_color_4[3]
 
-        # add quadratic features to the input vector by multiplying each neighboring pair of pixels together
-        '''quadratic_features = []
-        for count in range(1, len(self.vector), 4):
-            current = [self.vector[count], self.vector[count+1], self.vector[count+2], self.vector[count+3]]
-            if count - 4 > 0 and (count - 1) % 80 != 0: # if there is a pixel to its left
-                left = [self.vector[count-4], self.vector[count-3], self.vector[count-2], self.vector[count-1]]
-                dot_product = np.dot(current, left)
-                quadratic_features.append(dot_product)
-            if count + 4 < len(self.vector) and (count + 3) % 80 != 0: # if there is a pixel to its right
-                right = [self.vector[count+4], self.vector[count+5], self.vector[count+6], self.vector[count+7]]
-                dot_product = np.dot(current, right)
-                quadratic_features.append(dot_product)
-            bottom_index = count + (image_length*4)
-            if bottom_index < len(self.vector): # if there is a pixel directly below it
-                bottom = [self.vector[bottom_index], self.vector[bottom_index+1], self.vector[bottom_index+2], self.vector[bottom_index+3]]
-                dot_product = np.dot(current, bottom)
-                quadratic_features.append(dot_product)
-            top_index = count - (image_length*4)
-            if top_index > 0: # if there is a pixel directly above it
-                top = [self.vector[top_index], self.vector[top_index+1], self.vector[top_index+2], self.vector[top_index+3]]
-                dot_product = np.dot(current, top)
-                quadratic_features.append(dot_product)
-        self.vector = np.append(self.vector, quadratic_features)'''
-
-
         # add quadratic features by taking the dot product of pairs of neighboring pixels and appending the dot product
         # of those 2 dot products
         # calculate dot product of groups of 4 in rows

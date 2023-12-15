@@ -52,7 +52,6 @@ def stochastic_gradient_descent(dataset, alpha, testing_set):
     best_test_loss = float('inf')
     time_best_test_loss = 0
 
-    # print("starting SGD")
     while time < termination:
         # 1. pick a data point at random
         data_point = dataset[np.random.randint(0, len(dataset))]
@@ -89,10 +88,6 @@ class AlgorithmicAlchemy2:
         self.training_dataset = []
         for count in range(training_dataset_size):
             data_point = DangerousWiring()
-            '''vector = data_point.vector
-            for i in range(len(vector)):
-                noise = random.uniform(-0.05, 0.05)
-                vector[i] = vector[i] + noise'''
             self.training_dataset.append((data_point.vector, data_point.wire_to_cut))  # input, output pairing
         alpha = 0.05
         stochastic_gradient_output = stochastic_gradient_descent(self.training_dataset, alpha, testing_set)
@@ -107,7 +102,7 @@ class AlgorithmicAlchemy2:
 
 def main():
     # create model 1 of 500 examples for each of the training, validation, and testing sets
-    model_1_size = 5000
+    model_1_size = 2500
     validation_size = 500
 
     # validation training_dataset
@@ -201,7 +196,6 @@ def main():
     plt.legend(loc='upper right')
 
     plt.show()
-
 
 
 if __name__ == "__main__":
