@@ -18,10 +18,6 @@ def soft_max_regression(wr, wb, wy, wg, x):
     return fx
 
 
-def sigmoid(z) -> float:
-    return 1 / (1 + np.exp(z * -1))
-
-
 def sum_log_loss(dataset, wr, wb, wy, wg) -> float:
     loss = 0
     for x, y in dataset:
@@ -35,18 +31,6 @@ def sum_log_loss(dataset, wr, wb, wy, wg) -> float:
     return (1 / len(dataset)) * loss
 
 
-'''if sigmoid_output <= 0:
-            print('orange')
-        elif 1 - sigmoid_output <= 0:
-            print('papaya')
-        else:
-            print("successful")'''
-
-
-def calculate_gradient(x, y, w) -> float:
-    return sigmoid(np.dot(x, w)) - y
-
-
 def stochastic_gradient_descent(dataset, alpha, testing_set):
     weights_length = len(dataset[0][0])  # get the length of an input vector
     wr = np.zeros(weights_length)
@@ -54,7 +38,7 @@ def stochastic_gradient_descent(dataset, alpha, testing_set):
     wy = np.zeros(weights_length)
     wg = np.zeros(weights_length)
     for count in range(weights_length):
-        wr[count] = random.uniform(-0.025, 0.025)  # unit intervals b/w -9 to -3 work well
+        wr[count] = random.uniform(-0.025, 0.025)
     for count in range(weights_length):
         wb[count] = random.uniform(-0.025, 0.025)
     for count in range(weights_length):
@@ -124,7 +108,7 @@ class AlgorithmicAlchemy2:
 
 def main():
     # create model 1 of 500 examples for each of the training, validation, and testing sets
-    model_1_size = 2000
+    model_1_size = 5000
     validation_size = 500
 
     # validation training_dataset
@@ -204,64 +188,24 @@ def main():
 
     # print info about best weights
     print("lowest test loss: " + str(best_list[1]))
+    print("training loss at time of best test loss: " + str(algorithmic_alchemy2_2000.loss_list[best_list[2]]))
     print("time lowest test loss: " + str(best_list[2]))
     print("performance on validation lowest test loss: " + str(performance_validation_best))
     print("performance on training lowest test loss: " + str(performance_training_best))
 
     # plot loss for training and validation sets
-    plt.plot(iteration_values, algorithmic_alchemy2_2000.loss_list, marker='o', label='Training Set')  # marker='o'
-    plt.plot(iteration_values, algorithmic_alchemy2_2000.test_loss_list, marker='o', label='Validation Set')
+    plt.plot(iteration_values, algorithmic_alchemy2_2000.test_loss_list, marker='o', label='Testing Set', color='C1')
+    plt.plot(iteration_values, algorithmic_alchemy2_2000.loss_list, marker='o', label='Training Set', color='C0')
     plt.xlabel("Iteration Values")
     plt.ylabel("Loss Function Values")
     plt.title("Loss Function During Training")
     plt.legend(loc='upper right')
 
-    '''plt.subplot(1, 3, 3)  # Third subplot of performance and threshold values TRAINING
-    plt.plot(threshold_list, y_vals_training, marker='o')
-    plt.xlabel("Threshold")
-    plt.ylabel("Performance")
-    plt.title('Performance as a Function of Threshold')'''
-
-    # Display the plot
     plt.show()
 
-    '''plt.plot(iteration_values, algorithmic_alchemy2_2000.loss_list, label='Line Graph')
-    plt.xlabel("Iteration Values")
-    plt.ylabel("Loss Function Values")
-    plt.title("Loss Function During Training")
-    plt.legend(loc='upper right')
-    plt.show()'''
 
 
 if __name__ == "__main__":
     main()
 
-'''
-    for data_point in validation_set:
-        x = data_point[0]
-        y = data_point[1]
-        sigmoid_output = sigmoid(np.dot(x, weights_500))
-        if sigmoid_output < 0.5:
-            output_500.append((x, 0))
-        else:
-            output_500.append((x, 1))
 
-    # calculate performance
-    num_correct = 0
-    for count in range(len(output_500)):
-        output_model = output_500[count][1]
-        output_answer = validation_set[count][1]
-        if output_answer == output_model:
-            num_correct = num_correct + 1
-    performance = num_correct / model_1_size
-    print(performance)
-
-
-    iteration_values = np.arange(start=0, stop=100000, step=1)
-    plt.plot(iteration_values, algorithmic_alchemy2_500.loss_list, label='Line Graph')
-    plt.xlabel("Iteration Values")
-    plt.ylabel("Loss Function Values")
-    plt.title("Loss Function During Training")
-    plt.legend(loc='upper right')
-    plt.show()
-'''

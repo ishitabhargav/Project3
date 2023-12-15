@@ -181,7 +181,7 @@ class DangerousWiring:
         # self.vector = np.append(self.vector, quad_features2)
         for item in sum_list: # add each list of sums for each 2x2 window
             self.vector = np.append(self.vector, item)
-        print('s')
+        # print('s')
 
 
 image = DangerousWiring()

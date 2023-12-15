@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from wiring_quad_features import WiringQuadFeatures
+from wiring_nonlinear_features import WiringQuadFeatures
 import matplotlib.pyplot as plt
 
 
@@ -69,7 +69,7 @@ def stochastic_gradient_descent(dataset, alpha, testing_set):
         updated_weights = weights - (alpha * calculate_gradient(x, y, weights) * x)
         weights = updated_weights
 
-        if test_loss < best_test_loss and time > 20000:
+        if test_loss < best_test_loss and time > 70000:
             best_test_loss = test_loss
             best_weights = weights
             time_best_weights = time
@@ -242,36 +242,47 @@ def main():
     print("loss for validation set: " + str(sum_log_loss(validation_set, weights_2000)))
     print("time step for best weights: " + str(algorithmic_alchemy_2000.time_best_weights))
     print("best weights log loss on validation set: " + str(algorithmic_alchemy_2000.best_test_loss))
+
+    max_index_performance_hashtable = np.argmax(y_vals_validation)
+    max_index_performance_training = np.argmax(y_vals_training)
+    max_index_best_weights_validation = np.argmax(y_vals_validation_best)
+    max_index_best_weights_training = np.argmax(y_vals_training_best)
+
+    print("validation performance: " + str(performance_hashtable[max_index_performance_hashtable]) + " with threshold: " + str(threshold_list[max_index_performance_hashtable]))
+    print("training performance: " + str(performance_training[max_index_performance_training]) + " with threshold: " + str(threshold_list[max_index_performance_training]))
+    print("best validation weights: " + str(best_weights_validation[max_index_best_weights_validation]) + " with threshold: " + str(threshold_list[max_index_best_weights_validation]))
+    print("best training weights: " + str(best_weights_training[max_index_best_weights_training]) + " with threshold: " + str(threshold_list[max_index_best_weights_training]))
+
     plt.subplot(2, 2, 1)  # First subplot of performance and threshold values on training and validation
     plt.plot(threshold_list, y_vals_training, marker='o', label='Training Set')
     plt.plot(threshold_list, y_vals_validation, marker='o', label='Testing Set')
-    plt.xlabel("Threshold")
-    plt.ylabel("Performance")
+    plt.xlabel("Threshold To Classify Wiring Diagrams (From 0 to 1)")
+    plt.ylabel("Performance (From 0 to 1)")
     plt.legend(loc='upper right')
-    plt.title('Performance as a Function of Threshold')
+    plt.title('Performance Across Thresholds for Model After Full Training')
 
-    plt.subplot(2, 2, 2)  # Second subplot of loss
-    plt.plot(iteration_values, algorithmic_alchemy_2000.loss_list, marker='o', label='Training Set') #marker='o'
+    plt.subplot(2, 2, 2)  # Second subplot of best weight performance on second validation set
+    plt.plot(threshold_list, y_vals_training_best, marker='o', label='Training Set')
+    plt.plot(threshold_list, y_vals_validation_best, marker='o', label='Testing Set')
+    plt.xlabel("Threshold To Classify Wiring Diagrams (From 0 to 1)")
+    plt.ylabel("Performance (From 0 to 1)")
+    plt.legend(loc='upper right')
+    plt.title('Performance Across Thresholds for Model with Lowest Test Loss')
+
+    plt.subplot(2, 2, 3)  # third subplot of loss, last weights vector
+    plt.plot(iteration_values, algorithmic_alchemy_2000.loss_list, marker='o', label='Training Set')  # marker='o'
     plt.plot(iteration_values, algorithmic_alchemy_2000.test_loss_list, marker='o', label='Testing Set')
     plt.xlabel("Iteration Values")
     plt.ylabel("Loss Function Values")
-    plt.title("Loss Function During Training")
+    plt.title("Loss Function During Training: 100K iterations")
     plt.legend(loc='upper right')
 
-    plt.subplot(2, 2, 3) # third subplot of best weight performance on second validation set
-    plt.plot(threshold_list, y_vals_training_best, marker='o', label='Training Set')
-    plt.plot(threshold_list, y_vals_validation_best, marker='o', label='Testing Set')
-    plt.xlabel("Threshold")
-    plt.ylabel("Performance")
-    plt.legend(loc='upper right')
-    plt.title('Performance as a Function of Threshold for Model with Lowest Test Loss')
-
-    plt.subplot(2, 2, 4) # fourth subplot of loss
+    plt.subplot(2, 2, 4)  # fourth subplot of loss, best weights vector
     plt.plot(np.arange(start=0, stop=time_best_weights, step=1), train_loss_best, marker='o', label='Training Set')
     plt.plot(np.arange(start=0, stop=time_best_weights, step=1), val_loss_best, marker='o', label='Testing Set')
     plt.xlabel("Iteration Values")
     plt.ylabel("Loss Function Values")
-    plt.title("Performance as a Function of Threshold for Model with Lowest Test Loss")
+    plt.title("Loss Function During Training: " + str(time_best_weights) + "K iterations")
     plt.legend(loc='upper right')
     plt.tight_layout()
 
