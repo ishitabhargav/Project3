@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from wiring_nonlinear_features import WiringQuadFeatures
+from wiring import Wiring
 import matplotlib.pyplot as plt
 
 
@@ -12,12 +12,6 @@ def sum_log_loss(dataset, w) -> float:
     loss = 0
     for x, y in dataset:
         sigmoid_output = sigmoid(np.dot(x, w))
-        '''if sigmoid_output <= 0:
-            print('orange')
-        elif 1 - sigmoid_output <= 0:
-            print('papaya')
-        else:
-            print("successful")'''
         loss = loss + ((-1 * y) * np.log(sigmoid_output) - (1 - y) * np.log(1 - sigmoid_output))
     return (1 / len(dataset)) * loss
 
@@ -59,8 +53,6 @@ def stochastic_gradient_descent(dataset, alpha, testing_set):
         x = data_point[0]  # vector
         y = data_point[1]  # classification
         # 2. update loss values for testing and training sets
-        '''loss = log_loss(x, y, weights, time)
-        loss_list.append(loss)'''
         loss_list.append(sum_log_loss(dataset, weights))
         test_loss = sum_log_loss(testing_set, weights)
         test_loss_list.append(test_loss)
@@ -84,11 +76,7 @@ class AlgorithmicAlchemy:
         # training training_dataset
         self.training_dataset = []
         for count in range(training_dataset_size):
-            data_point = WiringQuadFeatures()
-            '''vector = data_point.vector
-            for i in range(len(vector)):
-                noise = random.uniform(-0.05, 0.05)
-                vector[i] = vector[i] + noise'''
+            data_point = Wiring()
             self.training_dataset.append((data_point.vector, data_point.is_dangerous))  # input, output pairing
         alpha = 0.05
         stochastic_gradient_output = stochastic_gradient_descent(self.training_dataset, alpha, testing_set)
@@ -102,13 +90,13 @@ class AlgorithmicAlchemy:
 
 def main():
     # create model 1 of 500 examples for each of the training, validation, and testing sets
-    model_1_size = 2000
+    model_1_size = 5000
     validation_size = 500
 
     # validation training_dataset
     validation_set = []
     for count in range(validation_size):
-        data_point = WiringQuadFeatures()
+        data_point = Wiring()
         validation_set.append((data_point.vector, data_point.is_dangerous))
 
     algorithmic_alchemy_2000 = AlgorithmicAlchemy(model_1_size, validation_set)
@@ -163,11 +151,6 @@ def main():
         performance_training[threshold] = num_correct / model_1_size
 
     # evaluate performance of the best weights on validation set
-    '''validation_set_2 = []
-    for count in range(validation_size):
-        data_point = WiringQuadFeatures()
-        validation_set_2.append((data_point.vector, data_point.is_dangerous))'''
-
     best_weights_validation = {}
     best_weights_2000 = algorithmic_alchemy_2000.best_weights
     threshold_list = np.linspace(0, 1, 50)
@@ -243,15 +226,15 @@ def main():
     print("time step for best weights: " + str(algorithmic_alchemy_2000.time_best_weights))
     print("best weights log loss on validation set: " + str(algorithmic_alchemy_2000.best_test_loss))
 
-    max_index_performance_hashtable = np.argmax(y_vals_validation)
-    max_index_performance_training = np.argmax(y_vals_training)
-    max_index_best_weights_validation = np.argmax(y_vals_validation_best)
-    max_index_best_weights_training = np.argmax(y_vals_training_best)
+    max_index_y_vals_validation = np.argmax(y_vals_validation)
+    max_index_y_vals_training = np.argmax(y_vals_training)
+    max_index_y_vals_validation_best = np.argmax(y_vals_validation_best)
+    max_index_y_vals_training_best = np.argmax(y_vals_training_best)
 
-    print("validation performance: " + str(performance_hashtable[max_index_performance_hashtable]) + " with threshold: " + str(threshold_list[max_index_performance_hashtable]))
-    print("training performance: " + str(performance_training[max_index_performance_training]) + " with threshold: " + str(threshold_list[max_index_performance_training]))
-    print("best validation weights: " + str(best_weights_validation[max_index_best_weights_validation]) + " with threshold: " + str(threshold_list[max_index_best_weights_validation]))
-    print("best training weights: " + str(best_weights_training[max_index_best_weights_training]) + " with threshold: " + str(threshold_list[max_index_best_weights_training]))
+    print("validation performance: " + str(y_vals_validation[max_index_y_vals_validation]) + " with threshold: " + str(threshold_list[max_index_y_vals_validation]))
+    print("training performance: " + str(y_vals_training[max_index_y_vals_training]) + " with threshold: " + str(threshold_list[max_index_y_vals_training]))
+    print("best validation weights: " + str(y_vals_validation_best[max_index_y_vals_validation_best]) + " with threshold: " + str(threshold_list[max_index_y_vals_validation_best]))
+    print("best training weights: " + str(y_vals_training_best[max_index_y_vals_training_best]) + " with threshold: " + str(threshold_list[max_index_y_vals_training_best]))
 
     plt.subplot(2, 2, 1)  # First subplot of performance and threshold values on training and validation
     plt.plot(threshold_list, y_vals_training, marker='o', label='Training Set')
@@ -289,44 +272,6 @@ def main():
     # Display the plot
     plt.show()
 
-    '''plt.plot(iteration_values, algorithmic_alchemy_2000.loss_list, label='Line Graph')
-    plt.xlabel("Iteration Values")
-    plt.ylabel("Loss Function Values")
-    plt.title("Loss Function During Training")
-    plt.legend(loc='upper right')
-    plt.show()'''
-
-
-
 if __name__ == "__main__":
     main()
 
-'''
-    for data_point in validation_set:
-        x = data_point[0]
-        y = data_point[1]
-        sigmoid_output = sigmoid(np.dot(x, weights_500))
-        if sigmoid_output < 0.5:
-            output_500.append((x, 0))
-        else:
-            output_500.append((x, 1))
-
-    # calculate performance
-    num_correct = 0
-    for count in range(len(output_500)):
-        output_model = output_500[count][1]
-        output_answer = validation_set[count][1]
-        if output_answer == output_model:
-            num_correct = num_correct + 1
-    performance = num_correct / model_1_size
-    print(performance)
-
-
-    iteration_values = np.arange(start=0, stop=100000, step=1)
-    plt.plot(iteration_values, algorithmic_alchemy_500.loss_list, label='Line Graph')
-    plt.xlabel("Iteration Values")
-    plt.ylabel("Loss Function Values")
-    plt.title("Loss Function During Training")
-    plt.legend(loc='upper right')
-    plt.show()
-'''
