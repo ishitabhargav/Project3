@@ -14,7 +14,6 @@ def soft_max_regression(wr, wb, wy, wg, x):
     fyx = e ** (np.dot(wy, x)) / denominator
     fgx = e ** (np.dot(wg, x)) / denominator
     fx = (frx, fbx, fyx, fgx)
-
     return fx
 
 
